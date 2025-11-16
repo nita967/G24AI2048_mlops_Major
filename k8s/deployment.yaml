@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: olivetti-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: olivetti
+  template:
+    metadata:
+      labels:
+        app: olivetti
+    spec:
+      containers:
+      - name: olivetti
+        image: yourdockerhubuser/olivetti-classifier:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
