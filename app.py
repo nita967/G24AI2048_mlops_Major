@@ -1,3 +1,4 @@
+# app.py
 import io
 import logging
 import traceback
@@ -17,7 +18,7 @@ MAX_CONTENT_LENGTH = 4 * 1024 * 1024  # 4 MB max upload
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 
-# Logging
+# Logging (stdout/stderr are captured by docker/k8s)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -25,10 +26,12 @@ logger = logging.getLogger(__name__)
 clf = None
 
 def get_model():
+    """Lazy load the model on first request. Raises exception if load fails."""
     global clf
     if clf is None:
         logger.info("Loading model from %s", MODEL_PATH)
         model_data = joblib.load(MODEL_PATH)
+        # model_data could be a dict or a sklearn estimator depending on how it was saved
         if isinstance(model_data, dict) and "model" in model_data:
             clf = model_data["model"]
         else:
@@ -36,6 +39,7 @@ def get_model():
         logger.info("Model loaded successfully")
     return clf
 
+# Simple HTML page (kept minimal for assignment)
 HTML = """
 <!doctype html>
 <title>Olivetti Face Classifier</title>
@@ -55,6 +59,7 @@ def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def preprocess_image_fileobj(file_stream):
+    """Read a file-like object, convert to grayscale 64x64 and flatten as model expects."""
     img = Image.open(file_stream).convert("L")
     img = img.resize((64, 64))
     arr = np.array(img).astype("float32") / 255.0
@@ -83,6 +88,7 @@ def predict():
         if not allowed_file(filename):
             return "Unsupported file type. Allowed: png, jpg, jpeg", 400
 
+        # Preprocess
         try:
             arr = preprocess_image_fileobj(file.stream)
         except UnidentifiedImageError:
@@ -91,6 +97,7 @@ def predict():
             logger.exception("Failed during image preprocessing")
             return f"Image preprocessing error: {str(e)}", 500
 
+        # Load model (lazy) and predict
         try:
             model = get_model()
         except Exception:
@@ -99,6 +106,7 @@ def predict():
 
         try:
             pred = model.predict(arr)[0]
+            # ensure safe cast to int for JSON/templating
             pred = int(pred)
         except Exception:
             logger.exception("Prediction failed")
@@ -107,9 +115,12 @@ def predict():
         return render_template_string(HTML, pred=pred)
 
     except Exception as e:
+        # Catch-all — log full traceback for debugging
         tb = traceback.format_exc()
         logger.error("Unhandled exception:\n%s", tb)
         return "Internal Server Error (see server logs)", 500
 
 if __name__ == "__main__":
+    # Development run (not used when running under gunicorn)
     app.run(host="0.0.0.0", port=5000)
+
