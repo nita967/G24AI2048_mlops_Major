@@ -9,27 +9,27 @@
 
 
 ## Branch Structure (As per Assignment Requirement)
-- `main` — initial project setup, no merges into it  
-- `dev` — model development, training, and testing  
-- `docker_cicd` — Flask app, Docker, CI/CD pipeline & Kubernetes manifests  
+`main`  initial project setup, no merges into it  
+`dev`  model development, training, and testing  
+`docker_cicd`  Flask app, Docker, CI/CD pipeline & Kubernetes manifests  
 
 
 ## Project Overview
 This project implements an end-to-end ML Deployment Pipeline using the **Olivetti Faces dataset** with:
-- Training a **DecisionTreeClassifier**,
-- Saving model as `savedmodel.pth`,
-- Running automated tests via **GitHub Actions**,
-- Building a Docker image and hosting on Docker Hub,
-- Deploying the model-serving Flask app on **Kubernetes** using Deployment & Service,
-- Providing screenshots for each step in the submission PDF.
+Training a **DecisionTreeClassifier**,
+Saving model as `savedmodel.pth`,
+Running automated tests via **GitHub Actions**,
+Building a Docker image and hosting on Docker Hub,
+Deploying the model-serving Flask app on **Kubernetes** using Deployment & Service,
+Providing screenshots for each step in the submission PDF.
 
 ## Model Summary
-- **Dataset:** Olivetti Faces (from `sklearn.datasets`)
-- **Algorithm:** Decision Tree Classifier  
-- **Train/Test Split:** 70% train / 30% test  
-- **Saved Model:** `model/savedmodel.pth`  
-- **Preprocessing:** Flattening 64×64 grayscale images  
-- **Evaluation Metric:** Accuracy  
+  **Dataset:** Olivetti Faces (from `sklearn.datasets`)
+  **Algorithm:** Decision Tree Classifier  
+  **Train/Test Split:** 70% train / 30% test  
+  **Saved Model:** `model/savedmodel.pth`  
+  **Preprocessing:** Flattening 64×64 grayscale images  
+  **Evaluation Metric:** Accuracy  
 
 
 
